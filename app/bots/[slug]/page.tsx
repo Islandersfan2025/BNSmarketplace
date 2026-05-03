@@ -1,28 +1,36 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { bots } from "@/lib/bots";
 
-export default function BotDetailPage({ params }: { params: { slug: string } }) {
-  const bot = bots.find((item) => item.slug === params.slug);
+export default function BotDetailPage({
+  params
+}: {
+  params: { slug: string };
+}) {
+  const foundBot = bots.find((item) => item.slug === params.slug);
+
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<any>(null);
   const [workflowId, setWorkflowId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  if (!bot) {
-    return <main className="page"><h1>Bot not found</h1></main>;
+  if (!foundBot) {
+    return (
+      <main className="page">
+        <h1>Bot not found</h1>
+      </main>
+    );
   }
 
-  function updateValue(key: string, value: string) {
-    setValues((current) => ({ ...current, [key]: value }));
-  }
+  const bot = foundBot;
 
   async function installBot() {
     setLoading(true);
     setResult(null);
 
-    const mergedValues = { ...values };
+    const mergedValues: Record<string, string> = { ...values };
+
     for (const input of bot.inputs) {
       if (!mergedValues[input.key] && input.defaultValue !== undefined) {
         mergedValues[input.key] = String(input.defaultValue);
@@ -35,8 +43,11 @@ export default function BotDetailPage({ params }: { params: { slug: string } }) 
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: bot.slug, values: mergedValues })
       });
+
       const json = await res.json();
+
       if (!res.ok) throw new Error(json.error);
+
       setWorkflowId(json.workflowId);
       setResult(json);
     } catch (error: any) {
@@ -49,14 +60,18 @@ export default function BotDetailPage({ params }: { params: { slug: string } }) 
   async function runWorkflow() {
     setLoading(true);
     setResult(null);
+
     try {
       const res = await fetch("/api/bots/run", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ workflowId })
       });
+
       const json = await res.json();
+
       if (!res.ok) throw new Error(json.error);
+
       setResult(json);
     } catch (error: any) {
       setResult({ error: error.message });
@@ -77,12 +92,16 @@ export default function BotDetailPage({ params }: { params: { slug: string } }) 
             {input.label}
             {input.type === "select" ? (
               <select
-                defaultValue={String(input.defaultValue || "")}
-                onChange={(e) => updateValue(input.key, e.target.value)}
+                value={values[input.key] || String(input.defaultValue || "")}
+                onChange={(e) =>
+                  setValues({ ...values, [input.key]: e.target.value })
+                }
               >
                 <option value="">Select...</option>
                 {input.options?.map((option) => (
-                  <option value={option} key={option}>{option}</option>
+                  <option value={option} key={option}>
+                    {option}
+                  </option>
                 ))}
               </select>
             ) : (
@@ -90,7 +109,9 @@ export default function BotDetailPage({ params }: { params: { slug: string } }) 
                 type={input.type}
                 placeholder={input.placeholder}
                 defaultValue={input.defaultValue}
-                onChange={(e) => updateValue(input.key, e.target.value)}
+                onChange={(e) =>
+                  setValues({ ...values, [input.key]: e.target.value })
+                }
               />
             )}
           </label>
@@ -101,7 +122,11 @@ export default function BotDetailPage({ params }: { params: { slug: string } }) 
         </button>
 
         {workflowId && (
-          <button className="button secondary" onClick={runWorkflow} disabled={loading}>
+          <button
+            className="button secondary"
+            onClick={runWorkflow}
+            disabled={loading}
+          >
             Run Workflow Now
           </button>
         )}
