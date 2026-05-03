@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { bots } from "@/lib/bots";
 
 export default function BotDetailPage({ params }: { params: { slug: string } }) {
-  const bot = useMemo(() => bots.find((item) => item.slug === params.slug), [params.slug]);
+  const bot = bots.find((item) => item.slug === params.slug);
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<any>(null);
   const [workflowId, setWorkflowId] = useState("");
