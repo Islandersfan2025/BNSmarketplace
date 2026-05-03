@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <main className="page">
       <section className="hero">
-        <div className="badge">BSN Marketplace</div>
+        <div className="badge">BNS Marketplace</div>
         <h1>Run autonomous onchain bots</h1>
         <p>
           Listings of bots for tracking transactions.
