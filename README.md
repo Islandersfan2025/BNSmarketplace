@@ -1,4 +1,4 @@
-# KeeperHub Bot Marketplace MVP
+# BNS Marketplace
 
 A runnable Next.js MVP for a marketplace where users can install different versions of KeeperHub automation bots.
 
